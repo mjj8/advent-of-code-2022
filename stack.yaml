@@ -1,0 +1,5 @@
+resolver: lts-19.17
+
+system-ghc: true
+install-ghc: false
+skip-ghc-check: true

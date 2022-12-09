@@ -1,0 +1,18 @@
+{
+	"name": "Ubuntu",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": "..",
+		"args": { "VARIANT": "jammy" }
+	},
+	"runArgs": [
+        "--cap-add=SYS_PTRACE",
+        "--security-opt", "seccomp=unconfined"
+    ],
+    "extensions": [
+		"vscodevim.vim",
+		"haskell.haskell",
+		"ms-vsliveshare.vsliveshare-pack"
+	],
+	"remoteUser": "vscode"
+}
