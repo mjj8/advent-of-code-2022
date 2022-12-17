@@ -3,7 +3,16 @@ name: mylib
 dependencies:
 - base >= 4.7 && <= 5
 
-library:
-  source-dirs: src
-
 ghc-options: -pgmL markdown-unlit
+
+executables:
+  Day01:
+    main:                day01.lhs
+    other-modules:       []
+    source-dirs:         src
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - split
