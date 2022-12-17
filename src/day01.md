@@ -3,6 +3,7 @@
 ```haskell
 module Main where
 import Data.List.Split (splitWhen)
+import Data.List (sort)
 ```
 
 ## problem 
@@ -49,7 +50,7 @@ To find the "top three" implies sorting!  The brute force approach is: sort the 
 
 ```haskell
 partb :: [[Int]] -> Int
-partb xss = take 3 (reverse (sort (map sum xss)))
+partb xss = sum (take 3 (reverse (sort (map sum xss))))
 ```
 
 ## parsing the input file
