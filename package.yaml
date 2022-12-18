@@ -16,3 +16,11 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - split
+  Day02:
+    main: day02.lhs
+    other-modules: []
+    source-dirs: src
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N

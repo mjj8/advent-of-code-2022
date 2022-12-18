@@ -1,5 +1,10 @@
 # Day02
 
+```haskell
+module Main where
+import Data.Maybe (mapMaybe)
+```
+
 ## problem
 
 Compute a rock-paper-scissors score from a play log.  The play log records an encoded play for player 1 and player 2.
@@ -17,8 +22,8 @@ C Z
 Let's assume we can parse the input into something like a pair of moves, `[(Move, Move)]`, where `Move` is something like a Rock, Paper, Scissors enum.  Another intermediate task is to judge that pair of moves from the second players perspective, e.g. did player to win, lose, or draw.  The part-a solution is then to sum up the scores from the play log.
 
 ```haskell
-data Move = Rock | Paper | Scissors deriving (Show, Enum)
-data Judge = Win | Lose | Draw (Show)
+data Move = Rock | Paper | Scissors deriving (Show, Enum, Eq)
+data Judge = Win | Lose | Draw deriving (Show)
 ```
 
 
@@ -44,36 +49,39 @@ solna :: [(Move, Move)] -> Int
 solna moves = sum (map (score . judge2) moves)
 ```
 
-
 ## parse input
 
 Now let's parse the input string: we want our parse function to look something like `parse :: String -> [(Move, Move)]`.
 
 ```haskell
 parse :: String -> [(Move, Move)]
-parse s = map (decode . tuplify . words) (lines s)
+parse s = mapMaybe (decode . tuplify . words) (lines s)
     where tuplify [x, y] = (x, y)
-``` 
-
-```haskell
-decode1 :: Char -> Move
-decode1 'A' = Rock
-decode1 'B' = Paper
-decode1 'C' = Scissors
 ```
 
 ```haskell
-decode2 :: Char -> Int
-decode2 'X' = Rock
-decode2 'Y' = Paper
-decode3 'Z' = Scissors
+decode1 :: String -> Maybe Move
+decode1 "A" = Just Rock
+decode1 "B" = Just Paper
+decode1 "C" = Just Scissors
+decode1 _ = Nothing
 ```
 
 ```haskell
-decode :: (Char, Char) -> (Move, Move)
-decode (x, y) = (decode1 x, decode2 y)
+decode2 :: String -> Maybe Move
+decode2 "X" = Just Rock
+decode2 "Y" = Just Paper
+decode2 "Z" = Just Scissors
+decode2 _ = Nothing
 ```
 
+```haskell
+decode :: (String, String) -> Maybe (Move, Move)
+decode (x, y) = do
+    move1 <- decode1 x
+    move2 <- decode2 y
+    return (move1, move2)
+```
 
 ## main
 
@@ -83,7 +91,7 @@ main = do
     s <- getContents
     let moves = parse s
     let outa = solna moves
-    putStrLn "part-a solution = " ++ (show outa)
+    putStrLn ("part-a solution = " ++ (show outa))
 ```
 
 call main like:  `stack exec day02 < input02.txt`
