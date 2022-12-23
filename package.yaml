@@ -24,3 +24,9 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+  Day03:
+    main: day03.lhs
+    source-dirs: src
+    dependencies:
+    - split
+    - containers
