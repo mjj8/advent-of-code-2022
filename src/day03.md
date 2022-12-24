@@ -4,7 +4,7 @@
 module Main where
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Data.List.Split (divvy)
+import Data.List.Split (divvy, chunksOf)
 ```
 
 ## part a problem
@@ -56,6 +56,26 @@ parsea :: String -> [Rucksack]
 parsea s = map splitInTwo (lines s)
 ```
 
+## part b problem
+
+Every three lines is a group.  Find the one item that is shared.  Sum up the
+priorities for those common items.
+
+## part b solution
+
+```haskell
+getsharedb :: [Rucksack] -> [Item]
+getsharedb rs = S.toList (foldl S.intersection f fs)
+    where
+        (f:fs) = map flatten rs
+        flatten (fst, snd) = S.fromList (fst ++ snd)
+```
+
+```haskell
+solnb :: [Rucksack] -> Int
+solnb rs = sum [sum (map priority (getsharedb c)) | c <- chunksOf 3 rs]
+```
+
 ## main
 
 ```haskell
@@ -65,4 +85,6 @@ main = do
     let rs = parsea s
     let a = solna rs
     putStrLn ("part a solution = " ++ (show a))
+    let b = solnb rs
+    putStrLn ("part b solution = " ++ (show b))
 ```
