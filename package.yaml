@@ -30,3 +30,8 @@ executables:
     dependencies:
     - split
     - containers
+  Day04:
+    main: day04.lhs
+    source-dirs: src
+    dependencies:
+    - split
