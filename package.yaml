@@ -35,3 +35,9 @@ executables:
     source-dirs: src
     dependencies:
     - split
+  Day05:
+    main: day05.lhs
+    source-dirs: src
+    dependencies:
+    - split
+    - text
