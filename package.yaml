@@ -41,3 +41,8 @@ executables:
     dependencies:
     - split
     - text
+  Day06:
+    main: day06.lhs
+    source-dirs: src
+    dependencies:
+    - containers
