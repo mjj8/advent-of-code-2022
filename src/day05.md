@@ -1,8 +1,10 @@
 # day 05
 
 ```haskell
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
-import Data.List.Split (splitOn)
+import Data.List.Split (splitOn, chunksOf)
 import Data.Maybe (catMaybes)
 import Text.Read (readMaybe)
 ```
@@ -69,8 +71,11 @@ replace q j new = [if i == j then new else qi | (i, qi) <- zip [0..] q]
 ```
 
 ```haskell
-solna :: Stacks -> Moves -> Stacks
-solna q us = foldl move q us
+sim :: Stacks -> Moves -> Stacks
+sim q us = foldl move q us
+
+solna :: Stacks -> String
+solna = map head
 ```
 
 ## part a parser
@@ -85,11 +90,27 @@ parse s = (parseStacks s1, parseMoves s2)
         [s1, s2] = splitOn "\n\n" s
 ```
 
-
+The string representing stacks is a grid of text, with some additional brackets
+which are really not necessary because the whitespace alignment puts the crate
+at fixed positions in each line.  First get chunks of four characters, then the
+crate is the second character in each chunk, if there is no crate, the second
+character is just a whitespace.  
 
 ```haskell
 parseStacks :: String -> Stacks
-parseStacks s = undefined
+parseStacks s = filterStacks (concatStacks (map parseChunks (map (chunksOf 4) (lines s))))
+
+parseChunks :: [String] -> Stacks
+parseChunks chunks = [[c !! 1] | c <- chunks]
+
+concatStacks :: [Stacks] -> Stacks
+concatStacks ss = foldl add (replicate n []) ss
+    where 
+        n = length (head ss)
+        add as bs = [a ++ b | (a, b) <- zip as bs]
+
+filterStacks :: Stacks -> Stacks
+filterStacks stacks = [filter (\x -> x /= ' ') (init s) | s <- stacks]
 ```
 
 The structure of the phrase _move i from j to k_ guides our parser.
@@ -98,13 +119,69 @@ Ints, and package them up into a flat list of moves.
 
 ```haskell
 parseMoves :: String -> Moves
-parseMoves s = concat $ map parseMove (lines s)
+parseMoves s = mkZeroIndex $ concat $ map parseMove (lines s)
 
 parseMove :: String -> Moves
 parseMove s = replicate n (j, k)
     where 
         [n, j, k] = catMaybes $ map intify (words s)
         intify s = readMaybe s :: Maybe Int
+
+mkZeroIndex :: Moves -> Moves
+mkZeroIndex us = [(i - 1, j - 1) | (i, j) <- us]
+```
+
+## part b problem
+
+Now composite moves maintain the order of the crates!
+
+## part b solution
+
+```haskell
+type CompMove = (Int, Int, Int)
+type CompMoves = [CompMove]
+```
+
+```haskell
+moveb :: Stacks -> CompMove -> Stacks
+moveb q (n, j, k) = replace (replace q j jnew) k knew
+    where
+        qj = q !! j
+        jnew = drop n qj
+        knew = (take n qj) ++ (q !! k)
+```
+
+```haskell
+simb :: Stacks -> CompMoves -> Stacks
+simb q us = foldl moveb q us
+
+solnb :: Stacks -> String
+solnb = map head
+```
+
+## part b parser
+
+We have to parse moves to our new `CompMoves`.
+
+```haskell
+parseCompMoves :: String -> CompMoves
+parseCompMoves s = mkZeroIndexb $ map parseCompMove (lines s)
+
+parseCompMove :: String -> CompMove
+parseCompMove s = (n, j, k)
+    where 
+        [n, j, k] = catMaybes $ map intify (words s)
+        intify s = readMaybe s :: Maybe Int
+
+mkZeroIndexb :: CompMoves -> CompMoves
+mkZeroIndexb us = [(n, i - 1, j - 1) | (n, i, j) <- us]
+```
+
+```haskell
+parseb :: String -> (Stacks, CompMoves)
+parseb s = (parseStacks s1, parseCompMoves s2)
+    where
+        [s1, s2] = splitOn "\n\n" s
 ```
 
 ## main
@@ -114,6 +191,13 @@ main :: IO ()
 main = do
     s <- getContents
     let (stacks, moves) = parse s
-    let outa = solna stacks moves
+    let stacksfinal = sim stacks moves
+    let outa = solna stacksfinal
+    putStrLn ("part a final stacks: " ++ (show stacksfinal))
     putStrLn ("part a solution: " ++ (show outa))
+    let (stacksb, movesb) = parseb s
+    let stacksfinalb = simb stacksb movesb
+    let outb = solnb stacksfinalb
+    putStrLn ("part b final stacks: " ++ (show stacksfinalb))
+    putStrLn ("part b solution: " ++ (show outb))
 ```
