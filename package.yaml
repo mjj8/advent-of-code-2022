@@ -46,3 +46,6 @@ executables:
     source-dirs: src
     dependencies:
     - containers
+  Day07:
+    main: day07.lhs
+    source-dirs: src
