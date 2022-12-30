@@ -53,28 +53,43 @@ Now let's crawl the listing and find each file underneath a directory,
 including any child directories.
 
 ```haskell
-getfiles :: Listing a -> [FileInfo]
+getfiles :: Listing String -> [FileInfo]
 getfiles (D dirname fs ds) = fs ++ concat (map getfiles ds)
 
-crawl :: Listing a -> [(a, [FileInfo])]
+crawl :: Listing String -> [(String, [FileInfo])]
 crawl l@(D dirname fs ds) = (dirname, getfiles l) : concat (map crawl ds)
 ```
 
 ```haskell
-totalsizes :: Listing a -> [(a, Int)]
+totalsizes :: Listing String -> [(String, Int)]
 totalsizes l = map (\(n, xs) -> (n, sumfiles xs)) $ crawl l
     where
         sumfiles fileinfos = sum [s | (_, s) <- fileinfos]
 ```
 
 ```haskell
-sola :: Listing a -> Int
+sola :: Listing String -> Int
 sola l = sum $ filter (<= 100000) [s | (_, s) <- totalsizes l]
 ```
 
 ## part a parser
 
+Major components of parsing are inserting an empty directory in a listing, and
+inserting a file at the right path in a listing.
 
+```haskell
+parse :: [String] -> Listing String
+parse = undefined
+
+type Path = [String]
+
+insertFile :: Listing String -> Path -> Path -> FileInfo -> Listing String
+insertFile l@(D dirname fs ds) pin ppar f = 
+    if p' == pin then (D dirname (f:fs) ds)
+    else (D dirname fs [insertFile d pin p' f | d <- ds])
+    where
+        p' = ppar ++ [dirname]
+```
 
 ## main
 
@@ -84,6 +99,8 @@ main = do
     s <- getContents
     -- let listing = parse s
     let listing = D "/" [("a", 10), ("b", 20)] [D "d1" [("c", 30)] []]
+    let tmp = crawl listing
+    putStrLn (show tmp)
     let a = sola listing
     putStrLn (show a)
 ```
